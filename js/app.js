@@ -1,0 +1,77 @@
+import { h, $, put } from './ui/dom.js';
+import { icon } from './ui/icons.js';
+import { logo, emptyState } from './ui/components.js';
+import * as store from './data/store.js';
+import { can, onSession, initTheme } from './session.js';
+import { initAppearance } from './appearance.js';
+import { startRouter } from './router.js';
+import { installErrors } from './errors.js';
+import { unseen, onNotif, startNotify } from './notify.js';
+import { toast } from './ui/toast.js';
+import { errMsg } from './ui/act.js';
+
+// path, label, icon, extra class, wide (rail/sidebar only), visibility
+const NAV = [
+  { path: '/', label: 'Xếp hạng', icon: 'rank' },
+  { path: '/tongket', label: 'Tổng kết', icon: 'recap' },
+  { path: '/notes', label: 'Notes', icon: 'note' },
+  { path: '/lichsu', label: 'Nhật ký', icon: 'history', wide: true },
+  { path: '/ghi', label: 'Ghi điểm', icon: 'plus', cls: 'ghi', show: () => can('record') },
+  { path: '/duyet', label: 'Xác nhận', icon: 'check', wide: true, badge: true, show: () => can('approve') },
+  { path: '/quanly', label: 'Quản lý', icon: 'settings', wide: true, show: () => can('manage') },
+  { path: '/luat', label: 'Thể lệ', icon: 'book' },
+  { path: '/toi', label: 'Tôi', icon: 'user' },
+];
+let pending = 0, curPath = '/';
+
+function buildNav(list) {
+  put(list, ...NAV.filter(n => !n.show || n.show()).map(n => {
+    const badge = n.badge && h('span', { class: 'badge', 'data-badge': '', hidden: !pending }, pending);
+    return h('li', { class: (n.wide ? 'only-wide' : '') + (n.cls ? ` ${n.cls}-li` : '') },
+      h('a', { class: `nav-item pressable ${n.cls || ''}`, href: '#' + n.path, 'data-path': n.path },
+        h('span', { class: 'ico' }, icon(n.icon, 24), n.path === '/toi' && h('span', { class: 'ndot', 'data-ndot': '', hidden: !unseen() })), h('span', { class: 'lbl' }, n.label), badge));
+  }));
+  markActive();
+}
+function markActive() {
+  const p = curPath.startsWith('/to/') ? '/' : curPath;
+  document.querySelectorAll('.nav-item').forEach(a => {
+    const k = a.dataset.path, on = k === '/' ? p === '/' : p === k || p.startsWith(k + '/');
+    on ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current');
+  });
+}
+function paintBadge() {
+  document.querySelectorAll('[data-badge]').forEach(b => { b.textContent = pending; b.hidden = !pending; });
+}
+
+async function boot() {
+  installErrors();
+  addEventListener('aaba:werr', ev => toast(errMsg(ev.detail))); // a queued write the server rejected later is never silent
+  initTheme();
+  initAppearance();
+  const typing = e => e.target.matches?.('textarea,select,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=button])');
+  addEventListener('focusin', e => { if (typing(e)) document.documentElement.classList.add('kb'); });
+  addEventListener('focusout', () => document.documentElement.classList.remove('kb'));
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
+  const root = $('#app');
+  try { await store.init(); } catch (err) {
+    put(root, h('div', { class: 'view' }, emptyState({ icon: 'x', title: 'Không tải được dữ liệu', text: String(err.message || err), action: { label: 'Thử lại', onClick: () => location.reload() } })));
+    return;
+  }
+  const list = h('ul', { class: 'nav-list' });
+  const banner = h('div', { class: 'banner', role: 'status', hidden: true }, 'Bạn đang offline. Dữ liệu có thể chưa mới nhất.');
+  const syncOnline = () => { banner.hidden = navigator.onLine; };
+  addEventListener('online', syncOnline); addEventListener('offline', syncOnline); syncOnline();
+  put(root, banner,
+    h('nav', { class: 'nav', 'aria-label': 'Điều hướng chính' }, h('a', { class: 'nav-logo', href: '#/', 'aria-label': 'aaba' }, logo()), list),
+    h('main', { class: 'main' }, h('div', { id: 'view' })));
+  buildNav(list);
+  startNotify();
+  onNotif(() => document.querySelectorAll('[data-ndot]').forEach(d => { d.hidden = !unseen(); }));
+  onSession(() => buildNav(list));
+  let stopPend = null;
+  const pendSub = () => { stopPend?.(); stopPend = null; pending = 0; paintBadge(); if (can('approve')) stopPend = store.pendingEntries(es => { pending = es.length; paintBadge(); }); };
+  pendSub(); onSession(pendSub);
+  startRouter($('#view'), { onRoute: p => { curPath = p; markActive(); } });
+}
+boot();

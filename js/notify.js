@@ -1,0 +1,34 @@
+// In-app notifications: entries about me (studentId) newer than localStorage lastSeen. No push, no server.
+import * as store from './data/store.js';
+import { getSession, onSession } from './session.js';
+const K = 'aaba.seen';
+let all = [], list = [], seen = 0;
+const subs = new Set();
+const rd = () => { try { const v = localStorage.getItem(K); return v == null ? null : +v || 0; } catch { return null; } }; // storage blocked -> memory only (seen)
+const wr = v => { seen = v; try { localStorage.setItem(K, String(v)); } catch {} };
+const top = a => a.reduce((m, e) => Math.max(m, e.at || 0), 0);
+
+function calc() {
+  const s = getSession();
+  list = s?.studentId ? all.filter(e => e.studentId === s.studentId && e.by !== s.uid && e.status !== 'void').sort((a, b) => b.at - a.at) : [];
+  const v = rd();
+  if (v == null) { if (!seen && s?.studentId && all.length) wr(top(list)); } else seen = v;
+  subs.forEach(f => f());
+}
+export const notifs = () => list;
+export const lastSeen = () => seen;
+export const unseen = () => list.filter(e => e.at > seen).length;
+export function markSeen() { const t = Math.max(seen, top(list)); if (t !== seen) { wr(t); subs.forEach(f => f()); } }
+export function onNotif(f) { subs.add(f); return () => subs.delete(f); }
+// Realtime on my own entries only (studentId==me, any week); resubscribes when the picked/claimed student changes.
+let unsub = null, sid = null;
+function resub() {
+  const id = getSession()?.studentId || null;
+  if (id === sid && (unsub || !id)) return;
+  unsub?.(); unsub = null; sid = id; all = [];
+  if (id) unsub = store.studentEntries(id, es => { all = es; calc(); });
+}
+export function startNotify() {
+  resub(); calc();
+  onSession(() => { resub(); calc(); });
+}
