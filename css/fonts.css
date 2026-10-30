@@ -1,0 +1,4 @@
+/* Font files are added by hand into /fonts (see fonts/README.txt). App works with system fonts until then.
+   Only files that exist are listed (each missing source cost a 404 on every cold load). Add a woff2 line first if one is added. */
+@font-face{font-family:"gsans-vf";font-weight:400 700;font-style:normal;font-display:swap;
+  src:url("../fonts/gsans-vf.woff") format("woff")}
