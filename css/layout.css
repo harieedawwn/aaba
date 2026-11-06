@@ -1,5 +1,5 @@
 /* phone <=599 (default) | tablet 600-1023 rail | desktop >=1024 sidebar */
-.main{min-width:0;max-width:100%;min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top) var(--sp-5) calc(96px + env(safe-area-inset-bottom))}
+.main{min-width:0;max-width:100%;min-height:100vh;min-height:100dvh;padding:env(safe-area-inset-top) var(--sp-5) calc(84px + env(safe-area-inset-bottom))}
 .view{min-width:0;max-width:1100px;margin:0 auto;padding:var(--sp-4) 0 var(--sp-8)}
 .hdr{display:flex;align-items:center;gap:var(--sp-3);min-height:56px;margin-bottom:var(--sp-4)}
 .hdr-main{flex:1;min-width:0}
@@ -18,6 +18,14 @@
 .home-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--sp-6)}
 .hdr .logo{font-size:var(--fs-22)}
 @media (max-width:599px){html.kb .nav{display:none}}
+/* Phone bar (0.4.0): 7 equal cells = Xếp hạng · Tổng kết · Nhật ký · (+) · Notes · Thể lệ · Tôi; ~10% slimmer; labels never truncate */
+@media (max-width:599px){
+  .nav-item{min-height:50px;padding:0 1px;font-size:11px;letter-spacing:-.01em}
+  .nav-item .ico svg{width:22px;height:22px}
+  .nav-item .lbl{white-space:nowrap;overflow:visible}
+  .nav-item.ghi .ico{width:50px;height:50px;margin-top:-18px;border-width:3px}
+  .nav-item.ghi .ico svg{width:24px;height:24px}
+}
 @media (min-width:600px){
   .main{margin-left:88px;padding:env(safe-area-inset-top) var(--sp-8) var(--sp-8)}
   .view{padding-top:var(--sp-6)}

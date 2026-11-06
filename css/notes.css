@@ -70,13 +70,6 @@ button.nb-note{cursor:pointer}
 .nb-dtitle{font-size:var(--fs-22);overflow-wrap:anywhere}
 .nb-dbody{white-space:pre-wrap;overflow-wrap:anywhere}
 
-/* bottom bar: up to 6 items on phones (centre button gets a fixed cell, labels stay inside their cell) */
-.nav-item .lbl{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media (max-width:599px){
-  .nav-list li.ghi-li{flex:0 0 64px}
-  .nav-item{padding:0 2px}
-  .nav-list:has(.ghi-li) .nav-item .lbl{font-size:11px}
-}
 @media (min-width:600px){.nav{overflow-y:auto;scrollbar-width:none}.nav::-webkit-scrollbar{display:none}}
 @media (min-width:600px) and (max-width:1023px) and (max-height:760px){.nav-item{min-height:52px}}
 

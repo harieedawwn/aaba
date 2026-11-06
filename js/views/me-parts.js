@@ -1,10 +1,8 @@
-// Tôi: guest name picker (localStorage only) and the in-app "Thông báo" list.
+// Tôi: guest name picker (localStorage only). (The "Thông báo" list was removed in 0.4.0: new entries get "Mới" in Điểm của tôi.)
 import { h, put } from '../ui/dom.js';
-import { icon } from '../ui/icons.js';
 import { dot } from '../ui/components.js';
 import * as store from '../data/store.js';
 import { toast } from '../ui/toast.js';
-import { fmtPts, relTime } from '../format.js';
 import { act } from '../ui/act.js';
 
 export function namePicker(groups, students) {
@@ -24,16 +22,4 @@ export function namePicker(groups, students) {
   paint();
   return h('section', { class: 'card pick-box' }, h('h2', null, 'Chọn tên của bạn'),
     h('p', { class: 'muted' }, 'Chỉ lưu trên máy này, để xem điểm và thông báo của bạn.'), search, list);
-}
-
-// Câu thông báo cho một dòng điểm về mình.
-const line = e => `${e.points < 0 ? 'Bạn bị trừ' : 'Bạn được cộng'} ${Math.abs(e.points)} điểm: ${e.ruleName}`;
-export function notifRow(e, isNew, { group } = {}) {
-  return h('div', { class: 'entry' + (e.status === 'void' ? ' is-void' : '') },
-    h('div', { class: 'entry-main' },
-      h('div', { class: 'entry-name' }, line(e), isNew && [' ', h('span', { class: 'tag new' }, 'Mới')]),
-      h('div', { class: 'entry-sub muted' }, `${e.byName || 'Ai đó'} · ${relTime(e.at)}`)),
-    h('div', { class: 'entry-pts' }, h('span', { class: 'amt ' + (e.points > 0 ? 'pos' : 'neg') }, fmtPts(e.points)),
-      e.status === 'pending' && h('span', { class: 'pend' }, icon('clock', 14), 'chờ xác nhận'),
-      e.status === 'void' && h('span', { class: 'void-t' }, 'Đã thu hồi')));
 }

@@ -1,0 +1,31 @@
+/* 0.4.0 phone polish (< 600px): slightly denser type + spacing, still ≥40px touch targets.
+   Xếp hạng (.lb, .lb-hero, .lb-row, .hello) is deliberately untouched. Loaded after components/weeks, before appearance. */
+@media (max-width:599px){
+  .view{padding-top:var(--sp-3)}
+  .hdr{min-height:48px;margin-bottom:var(--sp-3)}
+  .hdr h1{font-size:26px}
+  .hdr-sub{font-size:var(--fs-12)}
+  .stack{gap:var(--sp-3)}
+  .card{padding:var(--sp-4)}
+  .tk-g{padding:0}
+  .card h2,.sec-h h2{font-size:var(--fs-16)}
+  .entry{padding:10px 0;gap:10px}
+  .entry-who,.entry-rule{font-size:14px}
+  .amt{font-size:var(--fs-16)}
+  .kv{padding:10px 0;font-size:14px}
+  .mem,.rule{padding:10px 0}
+  .day-h{margin:var(--sp-3) 0 6px}
+  .fchip{min-height:40px;padding:0 12px}
+  .fchip.tile-opt,.tiles .fchip,.pick .fchip{min-height:44px;padding:0 var(--sp-3);font-size:14px}
+  .seg button{min-height:40px}
+  .btn{min-height:44px;padding:0 var(--sp-4)}
+  .add-submit .btn{min-height:52px;font-size:var(--fs-16)}
+  .row-link{min-height:52px}
+  .rule-pick{min-height:48px}
+  .sheet-head h2{font-size:var(--fs-16)}
+  .add-sec{margin-bottom:var(--sp-3)}
+  .g-hero{padding:var(--sp-5)}
+  .g-total{font-size:52px}
+  .me-big{font-size:26px}
+  .empty{padding:var(--sp-6) var(--sp-3)}
+}

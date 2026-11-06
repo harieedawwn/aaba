@@ -10,16 +10,16 @@ import { unseen, onNotif, startNotify } from './notify.js';
 import { toast } from './ui/toast.js';
 import { errMsg } from './ui/act.js';
 
-// path, label, icon, extra class, wide (rail/sidebar only), visibility
+// path, label, icon, extra class, wide (rail/sidebar only), visibility. Phone bar: 3 · (+) · 3 so Ghi điểm is truly centred.
 const NAV = [
   { path: '/', label: 'Xếp hạng', icon: 'rank' },
   { path: '/tongket', label: 'Tổng kết', icon: 'recap' },
-  { path: '/notes', label: 'Notes', icon: 'note' },
-  { path: '/lichsu', label: 'Nhật ký', icon: 'history', wide: true },
+  { path: '/lichsu', label: 'Nhật ký', icon: 'history' },
   { path: '/ghi', label: 'Ghi điểm', icon: 'plus', cls: 'ghi', show: () => can('record') },
+  { path: '/notes', label: 'Notes', icon: 'note' },
+  { path: '/luat', label: 'Thể lệ', icon: 'book' },
   { path: '/duyet', label: 'Xác nhận', icon: 'check', wide: true, badge: true, show: () => can('approve') },
   { path: '/quanly', label: 'Quản lý', icon: 'settings', wide: true, show: () => can('manage') },
-  { path: '/luat', label: 'Thể lệ', icon: 'book' },
   { path: '/toi', label: 'Tôi', icon: 'user' },
 ];
 let pending = 0, curPath = '/';

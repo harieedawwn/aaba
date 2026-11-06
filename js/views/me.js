@@ -1,8 +1,8 @@
 // Tôi: my card, role cards (phone), theme, install hint, sign out, version.
 import { h } from '../ui/dom.js';
-import { namePicker, notifRow } from './me-parts.js';
+import { namePicker } from './me-parts.js';
 import { titleNames } from '../titles.js';
-import { notifs, lastSeen, markSeen } from '../notify.js';
+import { lastSeen, markSeen } from '../notify.js';
 import { icon } from '../ui/icons.js';
 import * as store from '../data/store.js';
 import { personalPoints } from '../scoring.js';
@@ -42,8 +42,7 @@ export default function me() {
     const s = getSession(), r = role(), guest = s.role === 'guest';
     const codeLink = h('section', { class: 'card' }, h('a', { class: 'link', href: '#/join' }, 'Tôi có mã đăng nhập'));
     if (guest && !s.studentId) return [pageHeader('Tôi'), picker(S.groups, S.students), codeLink, ap()];
-    queueMicrotask(markSeen);
-    const nf = notifs().slice(0, 20);
+    queueMicrotask(markSeen); // "Mới" = newer than lastSeen when this visit opened; seen once shown, so the tag is gone next visit
     const g = S.groups.find(x => x.id === s.groupId), me0 = S.students.find(x => x.id === s.studentId), tn = titleNames(me0 || s, S.config.titles);
     const pending = S.pending.length, ws = weekStart(Date.now());
     const mineAbout = !!s.studentId;
@@ -60,11 +59,8 @@ export default function me() {
           h('div', null, h('h2', null, s.name || 'Khách'),
             h('div', { class: 'muted prof-sub' }, h('span', null, [ROLE_LABEL[r], tn].filter(Boolean).join(' · ')), groupTag(g)))),
         pts !== null && h('div', { class: 'kv' }, h('span', { class: 'muted' }, 'Điểm tuần này'), h('span', { class: 'me-big' }, fmtPts(pts)))),
-      s.studentId && h('section', { class: 'card' }, h('div', { class: 'sec-h' }, h('h2', null, 'Thông báo')),
-        nf.length ? nf.map(e => notifRow(e, e.at > seenAtOpen)) : emptyState({ icon: 'clock', title: 'Chưa có thông báo', text: 'Khi có điểm cộng hoặc trừ cho bạn, thông báo sẽ hiện ở đây.' }),
-        h('p', { class: 'muted', style: { fontSize: '13px', marginTop: '12px' } }, 'Thông báo hiện khi bạn mở aaba')),
       h('section', { class: 'card' }, h('div', { class: 'sec-h' }, h('h2', null, mineAbout ? 'Điểm của tôi' : 'Điểm tôi đã ghi tuần này')),
-        mine.length ? mine.map(e => entryRow(e, { group: gm.get(e.groupId), student: sm.get(e.studentId), onOpen: x => entrySheet(x, { group: gm.get(x.groupId), student: sm.get(x.studentId) }) }))
+        mine.length ? mine.map(e => entryRow(e, { group: gm.get(e.groupId), student: sm.get(e.studentId), isNew: mineAbout && e.by !== s.uid && e.at > seenAtOpen, onOpen: x => entrySheet(x, { group: gm.get(x.groupId), student: sm.get(x.studentId) }) }))
           : emptyState({ icon: 'clock', title: 'Chưa có điểm nào', text: 'Điểm sẽ hiện ở đây khi có.' })),
       getSession().role === 'dev' && role() !== 'dev' ? h('section', { class: 'card' }, h('div', { class: 'setting' }, h('span', null, `Đang xem như: ${ROLE_LABEL[role()]}`),
         h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => setPreview(null) }, 'Thoát xem thử'))) : null,

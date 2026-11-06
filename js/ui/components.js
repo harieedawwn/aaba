@@ -40,7 +40,7 @@ export function themeToggle() {
   return b;
 }
 
-// Bell: only for anyone with a studentId; red dot while there are unseen entries about me. Opens Tôi (Thông báo).
+// Bell: only for anyone with a studentId; red dot while there are unseen entries about me. Opens Tôi (Điểm của tôi, tag "Mới").
 export function bell() {
   if (!getSession()?.studentId) return null;
   const dot = h('span', { class: 'ndot', hidden: !unseen() });

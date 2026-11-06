@@ -73,7 +73,7 @@
 .sheet-head h2{min-width:0;overflow-wrap:anywhere}.sheet-head .icon-btn{flex:none;margin-right:-8px}
 .sheet-body{flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 max(var(--sp-4),env(safe-area-inset-right)) calc(var(--sp-4) + env(safe-area-inset-bottom)) max(var(--sp-4),env(safe-area-inset-left))}
 @media (min-width:768px){.sheet-wrap{align-items:center}.sheet{width:min(520px,calc(100vw - 32px));border-radius:var(--r-l);animation-name:dialog-in}.sheet-grab{display:none}}
-.toasts{position:fixed;z-index:70;left:0;right:0;bottom:calc(88px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);pointer-events:none;padding:0 max(var(--sp-4),env(safe-area-inset-right)) 0 max(var(--sp-4),env(safe-area-inset-left))}
+.toasts{position:fixed;z-index:70;left:0;right:0;bottom:calc(80px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);pointer-events:none;padding:0 max(var(--sp-4),env(safe-area-inset-right)) 0 max(var(--sp-4),env(safe-area-inset-left))}
 @media (min-width:600px){.toasts{bottom:var(--sp-6)}}
 .toast{pointer-events:auto;display:flex;align-items:center;gap:var(--sp-4);min-height:48px;padding:var(--sp-2) var(--sp-4);border-radius:var(--r-m);background:var(--text);color:var(--bg);box-shadow:var(--shadow);animation:toast-in var(--d2) var(--ease-out)}
 .toast-act{min-height:44px;padding:0 var(--sp-2);font-weight:700;color:var(--accent)}
