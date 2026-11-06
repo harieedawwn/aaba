@@ -6,7 +6,7 @@ import { lastSeen, markSeen } from '../notify.js';
 import { icon } from '../ui/icons.js';
 import * as store from '../data/store.js';
 import { personalPoints } from '../scoring.js';
-import { weekStart, WEEK } from '../weeks.js';
+import { weekStart, WEEK, label as wkLabel } from '../weeks.js';
 import { fmtPts } from '../format.js';
 import { pageHeader, live, entryRow, entrySheet, emptyState, groupTag } from '../ui/components.js';
 import { getSession, can, role, setPreview, ROLE_LABEL } from '../session.js';
@@ -14,6 +14,20 @@ import { appearanceCard } from '../ui/appearance-ui.js';
 import { APP_VERSION } from '../config.js';
 import { act } from '../ui/act.js';
 
+// Điểm của tôi spans several weeks: a small divider per week ("Tuần này" / "Tuần trước" / dates) with that week's net.
+function byWeek(list, cur, row) {
+  const out = []; let key = null;
+  for (const e of list) {
+    const w = weekStart(e.at);
+    if (w !== key) {
+      key = w;
+      const net = list.filter(x => weekStart(x.at) === w && x.status === 'ok').reduce((a, x) => a + x.points, 0);
+      out.push(h('div', { class: 'day-h wk-div' }, h('span', null, w === cur ? 'Tuần này' : w === cur - WEEK ? `Tuần trước · ${wkLabel(w)}` : wkLabel(w)), h('span', null, fmtPts(net))));
+    }
+    out.push(row(e));
+  }
+  return out;
+}
 const link = (href, ic, label, badge) => h('a', { class: 'row-link pressable', href },
   icon(ic, 22), h('span', { class: 'grow' }, label), badge ? h('span', { class: 'badge' }, badge) : null, icon('chevron', 20));
 
@@ -60,7 +74,7 @@ export default function me() {
             h('div', { class: 'muted prof-sub' }, h('span', null, [ROLE_LABEL[r], tn].filter(Boolean).join(' · ')), groupTag(g)))),
         pts !== null && h('div', { class: 'kv' }, h('span', { class: 'muted' }, 'Điểm tuần này'), h('span', { class: 'me-big' }, fmtPts(pts)))),
       h('section', { class: 'card' }, h('div', { class: 'sec-h' }, h('h2', null, mineAbout ? 'Điểm của tôi' : 'Điểm tôi đã ghi tuần này')),
-        mine.length ? mine.map(e => entryRow(e, { group: gm.get(e.groupId), student: sm.get(e.studentId), isNew: mineAbout && e.by !== s.uid && e.at > seenAtOpen, onOpen: x => entrySheet(x, { group: gm.get(x.groupId), student: sm.get(x.studentId) }) }))
+        mine.length ? byWeek(mine, ws, e => entryRow(e, { group: gm.get(e.groupId), student: sm.get(e.studentId), isNew: mineAbout && e.by !== s.uid && e.at > seenAtOpen, onOpen: x => entrySheet(x, { group: gm.get(x.groupId), student: sm.get(x.studentId) }) }))
           : emptyState({ icon: 'clock', title: 'Chưa có điểm nào', text: 'Điểm sẽ hiện ở đây khi có.' })),
       getSession().role === 'dev' && role() !== 'dev' ? h('section', { class: 'card' }, h('div', { class: 'setting' }, h('span', null, `Đang xem như: ${ROLE_LABEL[role()]}`),
         h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => setPreview(null) }, 'Thoát xem thử'))) : null,
