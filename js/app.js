@@ -49,6 +49,8 @@ async function boot() {
   addEventListener('aaba:werr', ev => toast(errMsg(ev.detail))); // a queued write the server rejected later is never silent
   initTheme();
   initAppearance();
+  // no pinch zoom in iOS Safari / installed PWA (iOS ignores user-scalable=no); double-tap zoom is off via touch-action in base.css
+  ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
   const typing = e => e.target.matches?.('textarea,select,input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=button])');
   addEventListener('focusin', e => { if (typing(e)) document.documentElement.classList.add('kb'); });
   addEventListener('focusout', () => document.documentElement.classList.remove('kb'));

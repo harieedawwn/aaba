@@ -23,6 +23,10 @@
   .nav-item{min-height:50px;padding:0 1px;font-size:11px;letter-spacing:-.01em}
   .nav-item .ico svg{width:22px;height:22px}
   .nav-item .lbl{white-space:nowrap;overflow:visible}
+  .nav-item[aria-current=page]{font-weight:600}
+}
+@media (max-width:380px){
+  .nav-item{font-size:10.5px;letter-spacing:-.02em}
   .nav-item.ghi .ico{width:50px;height:50px;margin-top:-18px;border-width:3px}
   .nav-item.ghi .ico svg{width:24px;height:24px}
 }

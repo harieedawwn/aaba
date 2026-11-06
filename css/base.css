@@ -20,3 +20,11 @@ svg.i{display:block;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linec
 .icon-btn{position:relative;width:44px;height:44px;border-radius:var(--r-pill);display:inline-grid;place-items:center;color:var(--text-2)}
 @media (hover:hover){.icon-btn:hover{background:var(--surface-2);color:var(--text)}}
 .link{color:var(--text);text-decoration:underline;text-underline-offset:3px;font-size:var(--fs-13);font-weight:600;padding:var(--sp-3) 0}
+/* 0.4.0 no zoom: double-tap zoom off everywhere (a class rule such as the notes board / slideshow touch-action still wins over *) */
+*,*::before,*::after{touch-action:manipulation}
+/* iOS zooms on focus below 16px */
+@media (max-width:599px),(pointer:coarse){input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),textarea,select{font-size:16px!important}}
+/* UI chrome is not selectable (long-press on a phone selected labels and looked broken). Inputs, note contents, ghi chú / lý do, codes, errors stay selectable. */
+.nav,.btn,button,.fchip,.chip,.seg,.tag,.gtag,.pressable,.entry,.lb-row,.lb-hero,.g-hero,.hero-score,.g-total,.hdr,.sheet-head,.sec-h,.row-link,.rule-pick,.mem,.kv>span:first-child,.day-h,.tile,.logo,.wknav,.stepper,.badge,.toast,.add-lab,.step-h{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input,textarea,select,[contenteditable],.form-err{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+.code-big{-webkit-user-select:all;user-select:all}
