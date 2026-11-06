@@ -21,8 +21,8 @@ export default function feed() {
   const ready = () => ['config', 'groups', 'students'].every(k => M[k] !== undefined);
 
   function chips(key, items) {
-    return h('div', { class: 'fchips', role: 'group' }, items.map(([v, label]) => h('button', {
-      class: 'fchip pressable', 'aria-pressed': String(st[key] === v), 'data-k': key, 'data-v': v,
+    return h('div', { class: 'fchips', role: 'group' }, items.map(([v, label, color]) => h('button', {
+      class: 'fchip pressable' + (color ? ` gchip g-${color}` : ''), 'aria-pressed': String(st[key] === v), 'data-k': key, 'data-v': v,
       onclick: () => { st[key] = v; refresh(); paintList(); } }, label)));
   }
   const voidBtn = h('button', { class: 'fchip pressable', type: 'button', 'aria-pressed': 'false', onclick: () => { st.showVoid = !st.showVoid; paintList(); } });
@@ -43,7 +43,7 @@ export default function feed() {
       .catch(() => { if (t === tok) put(list, emptyState({ icon: 'x', title: 'Không tải được', text: 'Kiểm tra mạng rồi thử lại.', action: { label: 'Thử lại', onClick: subscribe } })); });
   }
   function build() {
-    put(controls, chips('g', [['', 'Tất cả tổ'], ...M.groups.map(g => [g.id, g.name])]),
+    put(controls, chips('g', [['', 'Tất cả tổ'], ...M.groups.map(g => [g.id, g.name, g.color || 'slate'])]),
       chips('cat', [['', 'Tất cả nhóm'], ...M.config.categories.map(c => [c.id, c.name])]), chips('status', STATUS), voidBtn);
     built = true;
   }

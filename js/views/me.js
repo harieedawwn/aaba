@@ -8,7 +8,7 @@ import * as store from '../data/store.js';
 import { personalPoints } from '../scoring.js';
 import { weekStart, WEEK } from '../weeks.js';
 import { fmtPts } from '../format.js';
-import { pageHeader, live, entryRow, entrySheet, emptyState } from '../ui/components.js';
+import { pageHeader, live, entryRow, entrySheet, emptyState, groupTag } from '../ui/components.js';
 import { getSession, can, role, setPreview, ROLE_LABEL } from '../session.js';
 import { appearanceCard } from '../ui/appearance-ui.js';
 import { APP_VERSION } from '../config.js';
@@ -58,7 +58,7 @@ export default function me() {
       h('section', { class: 'card' },
         h('div', { class: 'prof' }, h('span', { class: 'tile', 'aria-hidden': 'true' }, initials(s.name)),
           h('div', null, h('h2', null, s.name || 'Khách'),
-            h('div', { class: 'muted' }, [ROLE_LABEL[r], tn, g?.name].filter(Boolean).join(' · ')))),
+            h('div', { class: 'muted prof-sub' }, h('span', null, [ROLE_LABEL[r], tn].filter(Boolean).join(' · ')), groupTag(g)))),
         pts !== null && h('div', { class: 'kv' }, h('span', { class: 'muted' }, 'Điểm tuần này'), h('span', { class: 'me-big' }, fmtPts(pts)))),
       s.studentId && h('section', { class: 'card' }, h('div', { class: 'sec-h' }, h('h2', null, 'Thông báo')),
         nf.length ? nf.map(e => notifRow(e, e.at > seenAtOpen)) : emptyState({ icon: 'clock', title: 'Chưa có thông báo', text: 'Khi có điểm cộng hoặc trừ cho bạn, thông báo sẽ hiện ở đây.' }),

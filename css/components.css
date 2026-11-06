@@ -42,16 +42,21 @@
 /* entries */
 .side-head{display:flex;align-items:center;justify-content:space-between}
 .entries{display:grid;grid-template-columns:minmax(0,1fr)}
-.entry{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-3) 0;border-top:1px solid var(--border)}
+.entry{display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-3) 0;border-top:1px solid var(--border)}
 .entry:first-child{border-top:0}
-.entry-main{flex:1;min-width:0}
-.entry-name{font-size:var(--fs-15);font-weight:600;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.entry-sub{font-size:var(--fs-13)}
-.entry-pts{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none;text-align:right}
+.entry-main{flex:1;min-width:0;display:grid;gap:2px}
+.entry-who{display:flex;align-items:center;flex-wrap:wrap;gap:4px 6px;font-size:var(--fs-15);line-height:1.3;min-width:0}
+.entry-who b{font-weight:700;min-width:0;overflow-wrap:anywhere}
+.entry-rule{font-size:var(--fs-15);font-weight:500;line-height:1.35;color:var(--text);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:anywhere}
+.entry-rule.pos{color:var(--pos-text)}.entry-rule.neg{color:var(--neg-text)}
+.entry-meta{display:flex;align-items:center;gap:6px;min-width:0;margin-top:2px;font-size:var(--fs-12);color:var(--text-2)}
+.entry-by{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-pts{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex:none;text-align:right;padding-top:1px}
 .amt{font-size:var(--fs-17);font-weight:700}.amt.pos{color:var(--pos-text)}.amt.neg{color:var(--neg-text)}
+.gtag{display:inline-flex;align-items:center;flex:none;min-height:20px;padding:0 8px;border-radius:var(--r-pill);background:var(--tb,var(--surface-2));color:var(--tf,var(--text));font-size:var(--fs-12);font-weight:700;line-height:1.4;white-space:nowrap}
 .pend{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-12);font-weight:600;color:var(--warn-text)}
 .void-t{font-size:var(--fs-12);color:var(--text-2)}
-.pend.err{color:var(--neg-text)}.entry.is-fail{outline:1px dashed var(--neg-text);outline-offset:-1px}.entry-name b{font-weight:700}
+.pend.err{color:var(--neg-text)}.entry.is-fail{outline:1px dashed var(--neg-text);outline-offset:-1px}
 .sync-st{font-size:var(--fs-13);font-weight:600;color:var(--text-2);text-align:center}.sync-st.err{color:var(--neg-text)}.sync-st.ok{color:var(--pos-text)}
 /* empty + skeleton */
 .empty{display:grid;justify-items:center;gap:var(--sp-3);text-align:center;padding:var(--sp-8) var(--sp-4)}
@@ -91,7 +96,7 @@
 .detail-acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--sp-2);margin-top:var(--sp-4)}
 .detail-acts>.btn{min-width:0;padding:0 var(--sp-3)}.detail-acts>.detail-void{margin-top:0}
 .detail-acts>.detail-ok,.detail-acts>:only-child,.detail-ok~:last-child:nth-child(even){grid-column:1/-1}
-.entry.is-void .entry-name{text-decoration:line-through;color:var(--text-2)}
+.entry.is-void .entry-rule{text-decoration:line-through;color:var(--text-2)}
 .entry[role=button]{cursor:pointer}
 .g-head{display:flex;align-items:center;gap:var(--sp-3)}
 .g-total{font-size:var(--fs-60);font-weight:700;line-height:1}
@@ -112,6 +117,10 @@
 .fchip{position:relative;display:inline-flex;align-items:center;gap:6px;flex:none;min-height:44px;padding:0 14px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--border);font-size:var(--fs-13);font-weight:500;color:var(--text-2)}
 .fchip::after{content:"";position:absolute;inset:-4px 0}
 .fchip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--on-ink)}
+/* Nhật ký tổ chips = groupTag look: tổ tint + same-hue text, stronger when pressed */
+.fchip.gchip{background:var(--tb);border-color:transparent;color:var(--tf);font-weight:700}
+.fchip.gchip[aria-pressed=true]{background:var(--tb);border-color:var(--tf);color:var(--tf);box-shadow:inset 0 0 0 1px var(--tf)}
+.prof-sub{display:flex;align-items:center;flex-wrap:wrap;gap:4px 8px}
 .sel{min-height:48px;padding:0 var(--sp-3);border-radius:var(--r-s);border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-weight:500}
 .day-h{display:flex;justify-content:space-between;font-size:var(--fs-13);font-weight:700;color:var(--text-2);margin:var(--sp-4) 0 var(--sp-2)}
 .day-h:first-child{margin-top:0}

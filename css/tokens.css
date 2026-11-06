@@ -26,3 +26,8 @@
 .g-teal{--gc:#0E7C8B;--gt:#DDF2F5;--go:#FFFFFF}.g-pink{--gc:#C4326B;--gt:#FFE3EE;--go:#FFFFFF}
 .g-amber{--gc:#FFC53D;--gt:#FFF3CF;--go:#1F2430}.g-slate{--gc:#55637A;--gt:#E8ECF2;--go:#FFFFFF}
 [data-theme=dark] [class*=g-]{--gt:var(--surface-2)}
+/* Tổ tag (groupTag): --tb light tint bg, --tf darker shade of the SAME hue (AA ≥4.5 checked by tokens.selftest.mjs, both themes) */
+.g-blue{--tb:#E6EDFF;--tf:#1F45B5}.g-green{--tb:#DFF3E8;--tf:#0F6644}.g-orange{--tb:#FFEBDD;--tf:#8F3D08}.g-purple{--tb:#EEE6FF;--tf:#5B2FB0}
+.g-teal{--tb:#DDF2F5;--tf:#0A5F6B}.g-pink{--tb:#FFE3EE;--tf:#9C2252}.g-amber{--tb:#FFF3CF;--tf:#7A5400}.g-slate{--tb:#E8ECF2;--tf:#3F4B5E}
+[data-theme=dark] .g-blue{--tb:#1C2A4D;--tf:#A9C1FF}[data-theme=dark] .g-green{--tb:#15332A;--tf:#8EE0B8}[data-theme=dark] .g-orange{--tb:#3D2414;--tf:#FFB98A}[data-theme=dark] .g-purple{--tb:#2D2347;--tf:#CDB6FF}
+[data-theme=dark] .g-teal{--tb:#123338;--tf:#8ED9E3}[data-theme=dark] .g-pink{--tb:#3D1C2A;--tf:#FFA8C8}[data-theme=dark] .g-amber{--tb:#3A2F12;--tf:#FFD978}[data-theme=dark] .g-slate{--tb:#262D38;--tf:#C3CCDA}

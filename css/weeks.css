@@ -39,5 +39,4 @@
 .tk-t tbody tr.on{background:var(--surface-2)}
 .tk-t td:first-child{border-left:4px solid var(--gc)}
 .tk-add{width:100%;margin-top:var(--sp-3)}
-.entry-name .tag{margin-left:var(--sp-2)}
 .detail-acts{margin-top:var(--sp-3)}

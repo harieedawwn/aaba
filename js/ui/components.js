@@ -54,13 +54,17 @@ const ROLE_VI = { recorder: 'cán sự ghi điểm', teacher: 'giáo viên', adm
 // Sync state of an entry: failed | queued | sending | '' (confirmed). _out comes from the outbox, _pend from the Firestore snapshot.
 export const syncOf = e => (e.status === 'failed' || e._out === 'error' ? 'failed' : e._out === 'queued' ? 'queued' : e._out === 'sending' || e._pend ? 'sending' : '');
 const SYNC_VI = { failed: 'chưa gửi được', queued: 'chờ mạng để gửi', sending: 'đang gửi' };
-export function entryRow(e, { group, student, onOpen } = {}) {
-  const who = e.studentId ? student?.name || 'Học sinh đã xoá' : group?.name || 'cả tổ', sync = syncOf(e);
-  const amt = h('span', { class: 'amt ' + (e.points > 0 ? 'pos' : e.points < 0 ? 'neg' : '') }, fmtPts(e.points));
+// Inline tổ name: tinted pill in the tổ hue (tokens --tb/--tf). Big headings keep plain text.
+export const groupTag = g => (g ? h('span', { class: `gtag g-${g.color || 'slate'}` }, g.name || '') : null);
+// Activity row: 1 who (+tags) · 2 rule (signed colour, 2 lines) · 3 [tổ] · bởi … · time. Right: amount + badges.
+export function entryRow(e, { group, student, onOpen, isNew } = {}) {
+  const who = e.studentId ? student?.name || 'Học sinh đã xoá' : 'Cả tổ', sync = syncOf(e), tone = e.points > 0 ? 'pos' : e.points < 0 ? 'neg' : '';
+  const amt = h('span', { class: 'amt ' + tone }, fmtPts(e.points));
   const row = h('div', { class: 'entry' + (e.status === 'void' ? ' is-void' : '') + (sync === 'failed' ? ' is-fail' : '') + (onOpen ? ' pressable' : ''), role: onOpen ? 'button' : null, tabindex: onOpen ? '0' : null },
     h('div', { class: 'entry-main' },
-      h('div', { class: 'entry-name' }, h('b', null, e.byName || 'Không rõ người ghi'), ' đã ghi ', e.ruleName, ' cho ', who, e.addedAt && h('span', { class: 'tag' }, 'Bổ sung'), e.replaces && h('span', { class: 'tag' }, 'Bản sửa')),
-      h('div', { class: 'entry-sub muted' }, `${group?.name || ''}${e.byRole && ROLE_VI[e.byRole] ? ' · ' + ROLE_VI[e.byRole] : ''} · ${relTime(e.at)}`)),
+      h('div', { class: 'entry-who' }, h('b', null, who), e.addedAt && h('span', { class: 'tag' }, 'Bổ sung'), e.replaces && h('span', { class: 'tag' }, 'Bản sửa'), isNew && h('span', { class: 'tag new' }, 'Mới')),
+      h('div', { class: 'entry-rule ' + tone }, e.ruleName),
+      h('div', { class: 'entry-meta' }, groupTag(group), h('span', { class: 'entry-by' }, `bởi ${e.byName || 'Không rõ'} · ${relTime(e.at)}`))),
     h('div', { class: 'entry-pts' }, amt,
       sync && h('span', { class: 'pend' + (sync === 'failed' ? ' err' : '') }, icon(sync === 'failed' ? 'x' : 'clock', 14), SYNC_VI[sync]),
       e.status === 'pending' && h('span', { class: 'pend' }, icon('clock', 14), 'chờ xác nhận'),
@@ -131,7 +135,7 @@ export function entrySheet(e, { group, student, readOnly } = {}) {
   });
   const sh = openSheet({ title: 'Chi tiết điểm', content: h('div', { class: 'detail' },
     h('div', { class: 'detail-top' }, h('div', { class: 'detail-name' }, e.ruleName), pointsChip(e.points)),
-    kv('Tổ', h('span', { class: 'inl' }, dot(group?.color), group?.name || '')),
+    kv('Tổ', groupTag(group) || ''),
     kv('Học sinh', e.studentId ? student?.name || 'Học sinh đã xoá' : 'Cả tổ'),
     e.qty > 1 && kv('Số lượng', `${e.qty} × ${fmtPts(e.unit)}`),
     kv('Thời gian', stamp(e.at)),
