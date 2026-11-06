@@ -1,6 +1,6 @@
 // Network-first for same-origin GET (cache fallback, so no version bumps needed);
 // cache-first for pinned CDN URLs; offline navigations fall back to cached index.
-const CACHE = 'aaba-rt-2';
+const CACHE = 'aaba-rt-3';
 const CDN = ['www.gstatic.com'];
 const later = ms => new Promise(res => setTimeout(res, ms));
 const keep = (e, p) => { try { e.waitUntil(p); } catch { /* event already finished */ } };
