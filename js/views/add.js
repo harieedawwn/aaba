@@ -86,7 +86,7 @@ export default function add() {
         class: 'fchip pressable', type: 'button', 'aria-pressed': String(st.cat === v), onclick: () => { st.cat = v; paintR(); } }, l)));
       put(signSeg, ...[['neg', 'Trừ điểm'], ['pos', 'Cộng điểm']].map(([v, l]) => h('button', { type: 'button', 'aria-pressed': String(st.sign === v),
         onclick: () => { st.sign = v; if (st.rule && (st.rule.points < 0) !== (v === 'neg')) st.rule = null; paintAll(); } }, l)));
-      signSeg.classList.toggle('neg', st.sign === 'neg');
+      signSeg.classList.toggle('neg', st.sign === 'neg'); signSeg.classList.toggle('pos', st.sign === 'pos');
       const f = all.filter(r => (r.points < 0) === (st.sign === 'neg') && (!st.cat || r.cat === st.cat) && (!q || norm(r.name).includes(q)));
       const row = r => h('button', { class: 'rule-pick pressable', type: 'button', 'aria-pressed': String(st.rule?.id === r.id), onclick: () => pickRule(r) },
         h('span', { class: 'rule-main' }, h('span', null, r.name)),

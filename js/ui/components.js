@@ -2,7 +2,6 @@
 import { h, put } from './dom.js';
 import { icon } from './icons.js';
 import { fmtPts, relTime, fmtDate, fmtTime } from '../format.js';
-const CAT_ICON = { noiquy: 'shield', hoctap: 'book', phongtrao: 'flag' };
 import { getTheme, setTheme, onTheme, can, getSession } from '../session.js';
 import * as store from '../data/store.js';
 import { openSheet } from './sheet.js';
@@ -55,12 +54,10 @@ const ROLE_VI = { recorder: 'cán sự ghi điểm', teacher: 'giáo viên', adm
 // Sync state of an entry: failed | queued | sending | '' (confirmed). _out comes from the outbox, _pend from the Firestore snapshot.
 export const syncOf = e => (e.status === 'failed' || e._out === 'error' ? 'failed' : e._out === 'queued' ? 'queued' : e._out === 'sending' || e._pend ? 'sending' : '');
 const SYNC_VI = { failed: 'chưa gửi được', queued: 'chờ mạng để gửi', sending: 'đang gửi' };
-export function entryRow(e, { group, student, onOpen, catId } = {}) {
+export function entryRow(e, { group, student, onOpen } = {}) {
   const who = e.studentId ? student?.name || 'Học sinh đã xoá' : group?.name || 'cả tổ', sync = syncOf(e);
-  const cat = catId || e.catId || e.categoryId || e.cat;
   const amt = h('span', { class: 'amt ' + (e.points > 0 ? 'pos' : e.points < 0 ? 'neg' : '') }, fmtPts(e.points));
   const row = h('div', { class: 'entry' + (e.status === 'void' ? ' is-void' : '') + (sync === 'failed' ? ' is-fail' : '') + (onOpen ? ' pressable' : ''), role: onOpen ? 'button' : null, tabindex: onOpen ? '0' : null },
-    h('span', { class: 'ico-tile', 'aria-hidden': 'true' }, icon(CAT_ICON[cat] || 'flag', 20)),
     h('div', { class: 'entry-main' },
       h('div', { class: 'entry-name' }, h('b', null, e.byName || 'Không rõ người ghi'), ' đã ghi ', e.ruleName, ' cho ', who, e.addedAt && h('span', { class: 'tag' }, 'Bổ sung'), e.replaces && h('span', { class: 'tag' }, 'Bản sửa')),
       h('div', { class: 'entry-sub muted' }, `${group?.name || ''}${e.byRole && ROLE_VI[e.byRole] ? ' · ' + ROLE_VI[e.byRole] : ''} · ${relTime(e.at)}`)),
@@ -126,6 +123,7 @@ export function entrySheet(e, { group, student, readOnly } = {}) {
   const canVoid = !readOnly && live && can('void', { entry: e });
   const canEdit = !readOnly && live && can('backdate');
   const canPurge = can('purge', { entry: e });
+  const canOk = !readOnly && !failed && e.status === 'pending' && can('approve', { entry: e });
   const stamp = t => `${fmtDate(t)} ${fmtTime(t)}`;
   const edit = () => act(async () => {
     if (!(await store.ruleUsable(e.ruleId))) return toast('Nội dung này đã bị tắt hoặc xoá nên không sửa được. Bạn vẫn có thể thu hồi điểm.');
@@ -142,12 +140,14 @@ export function entrySheet(e, { group, student, readOnly } = {}) {
     kv('Người ghi', `${e.byName || 'Không rõ'}${e.byRole && ROLE_VI[e.byRole] ? ` (${ROLE_VI[e.byRole]})` : ''}`), kv('Trạng thái', status),
     sync && kv('Đồng bộ', SYNC_VI[sync]),
     failed && store.entryError(e.id) && h('p', { class: 'form-err', role: 'alert' }, errMsg(store.entryError(e.id))),
-    failed && h('div', { class: 'row-btns detail-acts' },
+    failed && h('div', { class: 'detail-acts' },
       h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => { sh.close(); store.dismissEntry(e.id); } }, 'Bỏ qua'),
       h('button', { class: 'btn', type: 'button', onclick: () => { sh.close(); store.retryEntry(e.id); } }, 'Gửi lại')),
     e.note && kv('Ghi chú', e.note),
     e.status === 'void' && kv('Lý do thu hồi', e.voidReason),
-    (canVoid || canEdit) && h('div', { class: 'row-btns detail-acts' },
+    (canVoid || canEdit || canOk) && h('div', { class: 'detail-acts' },
+      canOk && h('button', { class: 'btn detail-ok', type: 'button', onclick: ev => act(async () => { await store.approveEntry(e.id); sh.close(); },
+        { btn: ev.currentTarget, ok: `Đã xác nhận ${fmtPts(e.points)} cho ${group?.name || ''}` }) }, icon('check', 18), 'Xác nhận'),
       canEdit && h('button', { class: 'btn btn-ghost', type: 'button', onclick: edit }, 'Sửa'),
       canVoid && h('button', { class: 'btn btn-ghost detail-void', type: 'button', onclick: () => {
         sh.close();

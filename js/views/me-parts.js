@@ -30,7 +30,6 @@ export function namePicker(groups, students) {
 const line = e => `${e.points < 0 ? 'Bạn bị trừ' : 'Bạn được cộng'} ${Math.abs(e.points)} điểm: ${e.ruleName}`;
 export function notifRow(e, isNew, { group } = {}) {
   return h('div', { class: 'entry' + (e.status === 'void' ? ' is-void' : '') },
-    h('span', { class: 'ico-tile', 'aria-hidden': 'true' }, icon(e.points < 0 ? 'minus' : 'plus', 20)),
     h('div', { class: 'entry-main' },
       h('div', { class: 'entry-name' }, line(e), isNew && [' ', h('span', { class: 'tag new' }, 'Mới')]),
       h('div', { class: 'entry-sub muted' }, `${e.byName || 'Ai đó'} · ${relTime(e.at)}`)),

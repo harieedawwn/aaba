@@ -74,19 +74,20 @@ html[data-accent] .pill-live,html[data-accent] .tag.pill-live,html[data-accent] 
 
 /* Surfaces */
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .nav{background:var(--g-top),var(--g-fill-hi);border-color:var(--g-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 32px -12px rgba(31,36,48,.2)}
-:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .card{background:var(--g-sheen),var(--g-fill);border-color:var(--g-edge);box-shadow:var(--g-rim),var(--g-sh)}
+:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .card:not(.g-hero){background:var(--g-sheen),var(--g-fill);border-color:var(--g-edge);box-shadow:var(--g-rim),var(--g-sh)}
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) li .card,
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .lb-row{background:var(--g-top),var(--g-fill);border-color:var(--g-edge);box-shadow:var(--g-rim)}
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .sheet{background:var(--g-sheen),var(--g-fill-hi);border:1px solid var(--g-edge);border-bottom:0;box-shadow:var(--g-rim),0 -12px 40px -12px rgba(31,36,48,.28)}
 @media (min-width:768px){:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .sheet{border-bottom:1px solid var(--g-edge);box-shadow:var(--g-rim),0 24px 60px -18px rgba(31,36,48,.4)}}
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .seg{background:var(--g-fill-2);box-shadow:var(--g-rim)}
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .seg button[aria-pressed=true]{background-image:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0) 60%);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 4px 12px -6px rgba(31,36,48,.5)}
-:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .lb-hero{background:var(--g-top),color-mix(in srgb,var(--gc) 92%,transparent);border:1px solid var(--g-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 0 0 1px rgba(255,255,255,.12),0 18px 40px -16px color-mix(in srgb,var(--gc) 70%,transparent)}
+/* Tổ-coloured heroes (Xếp hạng + group page): tinted tổ-colour glass, never the generic white card glass (white text) */
+:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) :is(.lb-hero,.g-hero){background:var(--g-top),color-mix(in srgb,var(--gc) 92%,transparent);border:1px solid var(--g-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.4),inset 0 0 0 1px rgba(255,255,255,.12),0 18px 40px -16px color-mix(in srgb,var(--gc) 70%,transparent)}
 /* Buttons: glossy capsules (top light + rim), no blur */
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .btn{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0) 55%),color-mix(in srgb,var(--primary) 88%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 0 0 1px rgba(255,255,255,.1),0 8px 18px -10px rgba(31,36,48,.55)}
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .btn-accent{background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,0) 55%),color-mix(in srgb,var(--accent) 92%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 0 0 1px rgba(255,255,255,.25),0 8px 20px -10px color-mix(in srgb,var(--accent) 80%,#000)}
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .btn-ghost{background:var(--g-sheen),var(--g-fill-2);box-shadow:var(--g-rim)}
-:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .btn-danger{background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),color-mix(in srgb,var(--neg) 90%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 18px -10px color-mix(in srgb,var(--neg) 80%,#000)}
+:root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) :is(.btn-danger,.add-submit .btn.neg){background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),color-mix(in srgb,var(--neg) 90%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 18px -10px color-mix(in srgb,var(--neg) 80%,#000)}
 /* Toast: dark glass capsule */
 :root:is([data-glass=lite],[data-glass=full]) body:not(.chieu-on) .toast{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,0) 60%),color-mix(in srgb,var(--text) 78%,transparent);border-radius:var(--r-pill);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.08),0 12px 30px -10px rgba(0,0,0,.45)}
 /* Nav: glass lens behind the current tab (phone bar), glossy centre Ghi điểm button */
@@ -97,8 +98,8 @@ html[data-accent] .pill-live,html[data-accent] .tag.pill-live,html[data-accent] 
 /* No color-mix (old engines): the declarations above that use it are dropped, so restore solid fills. */
 @supports not (color:color-mix(in srgb,red 50%,transparent)){
   :root[data-glass] body:not(.chieu-on) .btn{background:var(--primary)}:root[data-glass] body:not(.chieu-on) .btn-accent{background:var(--accent)}
-  :root[data-glass] body:not(.chieu-on) .btn-danger{background:var(--neg)}
-  :root[data-glass] body:not(.chieu-on) .toast{background:var(--text)}:root[data-glass] body:not(.chieu-on) .lb-hero{background:var(--gc)}
+  :root[data-glass] body:not(.chieu-on) :is(.btn-danger,.add-submit .btn.neg){background:var(--neg)}
+  :root[data-glass] body:not(.chieu-on) .toast{background:var(--text)}:root[data-glass] body:not(.chieu-on) :is(.lb-hero,.g-hero){background:var(--gc)}
 }
 /* Slideshow: fully excluded (projector + fit engine). */
 .ch,.ch *,body.chieu-on *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}

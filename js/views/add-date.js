@@ -4,7 +4,9 @@ import { isoDate, noonOf, weekStart, label, DAY, dayMonth } from '../weeks.js';
 
 export function dateRow({ orig = null, preset = null, onChange = () => {} } = {}) {
   const now = () => Date.now(), today = isoDate(now()), min = isoDate(now() - 198 * DAY), edit = orig != null;
-  let mode = edit ? 'orig' : preset && preset !== today ? 'pick' : 'today', pick = preset || today;
+  // preset (Tổng kết "Bổ sung vào tuần này") is also where reset() returns, so "Ghi tiếp" stays in that week
+  const mode0 = edit ? 'orig' : preset && preset !== today ? 'pick' : 'today', pick0 = preset || today;
+  let mode = mode0, pick = pick0;
   const date = h('input', { class: 'input', type: 'date', max: today, min, value: pick, 'aria-label': 'Chọn ngày', onchange: e => { pick = e.target.value; paint(); } });
   const opts = [...(edit ? [['orig', `Ngày cũ (${dayMonth(orig)})`]] : []), ['today', 'Hôm nay'], ['yday', 'Hôm qua'], ['pick', 'Chọn ngày']];
   const seg = h('div', { class: 'fchips', role: 'group', 'aria-label': 'Ngày xảy ra' }), line = h('div', { class: 'hint' });
@@ -28,5 +30,5 @@ export function dateRow({ orig = null, preset = null, onChange = () => {} } = {}
     onChange();
   }
   paint();
-  return { el, at, valid, reset() { mode = edit ? 'orig' : 'today'; pick = today; date.value = today; paint(); } };
+  return { el, at, valid, reset() { mode = mode0; pick = pick0; date.value = pick0; paint(); } };
 }

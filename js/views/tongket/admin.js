@@ -8,5 +8,5 @@ import { purgeAllBtn } from '../purge.js';
 export function adminExtras({ start, isCurrent }) {
   return { voidExtra: purgeAllBtn,
     top: can('backdate') ? h('button', { class: 'btn btn-ghost tk-add', type: 'button',
-      onclick: () => { setDraft({ date: isoDate(isCurrent ? Date.now() : friday(start)) }); location.hash = '#/ghi'; } }, 'Thêm điểm vào tuần này') : null };
+      onclick: () => { setDraft({ date: isoDate(isCurrent ? Date.now() : Math.min(friday(start), Date.now())) }); location.hash = '#/ghi'; } }, 'Bổ sung vào tuần này') : null };
 }
