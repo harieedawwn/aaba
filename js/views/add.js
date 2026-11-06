@@ -8,7 +8,8 @@ import { openSheet } from '../ui/sheet.js';
 import { toast } from '../ui/toast.js';
 import { getSession, can, role } from '../session.js';
 import { navigate } from '../router.js';
-import { act, saved, errMsg } from '../ui/act.js';
+import { act } from '../ui/act.js';
+import { doneView } from './add-done.js';
 import { dateRow } from './add-date.js';
 import { takeDraft } from '../ui/draft.js';
 import { confirmSheet } from '../ui/form.js';
@@ -16,10 +17,11 @@ import { weekStart, label as wkLabel } from '../weeks.js';
 
 const norm = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
 let lastGroup = null; // "Ghi tiếp" / next visit keeps the tổ
-const fresh = g => ({ g, stu: undefined, cat: '', q: '', sq: '', rule: null, qty: 1, sign: 'neg' });
+// stu = 'G' (Cả tổ) | undefined; ids = picked students (multi-select, scoped to tổ g; Sửa keeps exactly one)
+const fresh = g => ({ g, stu: undefined, ids: [], cat: '', q: '', sq: '', rule: null, qty: 1, sign: 'neg' });
 
 export default function add() {
-  let D = null, sh = null, closing = false, busy = false, attempt = null; // attempt = entry id reused by retries/double taps (idempotent write)
+  let D = null, sh = null, closing = false, busy = false, attempt = []; // attempt = entry ids reused by retries/double taps (idempotent write)
   const body = h('div', { class: 'stack' });
   const stop = live(body, ['config', 'groups', 'students', 'rules', 'entries'], (S, first) => { // entries = current week
     D = S;
@@ -40,7 +42,7 @@ export default function add() {
     if (ed) {
       const r0 = D.rules.find(x => x.id === ed.ruleId && x.active !== false);
       if (!r0) { toast('Nội dung này đã bị tắt hoặc xoá nên không sửa được.'); return navigate('/'); }
-      st = { ...fresh(ed.groupId), stu: ed.studentId || 'G', rule: r0, qty: ed.qty, sign: ed.points < 0 ? 'neg' : 'pos' };
+      st = { ...fresh(ed.groupId), stu: ed.studentId ? undefined : 'G', ids: ed.studentId ? [ed.studentId] : [], rule: r0, qty: ed.qty, sign: ed.points < 0 ? 'neg' : 'pos' };
     }
     const dUi = can('backdate') ? dateRow({ orig: ed?.at ?? null, preset: dr?.date || null, onChange: () => ready && paintSubmit() }) : null;
     const eg = () => st.g;
@@ -50,7 +52,8 @@ export default function add() {
     const gBox = h('div', { class: 'fchips tiles', role: 'group', 'aria-label': 'Tổ' });
     const sIn = h('input', { class: 'input', placeholder: 'Tìm học sinh', 'aria-label': 'Tìm học sinh', oninput: e => { st.sq = e.target.value; paintS(); } });
     const sChips = h('div', { class: 'pick' });
-    const sSec = h('div', { class: 'add-sec' }, lab('Học sinh'), sIn, h('div', { style: { height: '8px' } }), sChips);
+    const sCount = h('span', { class: 'sel-n' }), sClear = h('button', { class: 'link sel-clear', type: 'button', onclick: () => { st.stu = undefined; st.ids = []; paintS(); paintSubmit(); } }, 'Bỏ chọn');
+    const sSec = h('div', { class: 'add-sec' }, h('div', { class: 'add-lab sel-row' }, h('span', null, 'Học sinh'), sCount, sClear), sIn, h('div', { style: { height: '8px' } }), sChips);
     const rIn = h('input', { class: 'input', placeholder: 'Tìm nội dung', 'aria-label': 'Tìm nội dung', oninput: e => { st.q = e.target.value; paintR(); } });
     const cats = h('div', { class: 'fchips' }), rList = h('div', { class: 'add-list' });
     const qOut = h('output', null, '1');
@@ -67,13 +70,21 @@ export default function add() {
     function paintG() {
       const cur = eg(), list = rec ? D.groups.filter(g => g.id === me.groupId) : D.groups;
       put(gBox, ...list.map(g => h('button', { class: 'fchip pressable', type: 'button', 'aria-pressed': String(g.id === cur), disabled: rec,
-        onclick: () => { st.g = g.id; lastGroup = g.id; st.stu = undefined; paintAll(); } }, dot(g.color), g.name)));
+        onclick: () => { if (st.g !== g.id) { st.stu = undefined; st.ids = []; } st.g = g.id; lastGroup = g.id; paintAll(); } }, dot(g.color), g.name)));
     }
     function paintS() {
       const r = st.rule, g = eg();
       sSec.hidden = r?.scope === 'group';
       const q = norm(st.sq), ss = D.students.filter(s => s.groupId === g && norm(s.name).includes(q));
-      const pick = (v, label) => h('button', { class: 'fchip pressable', type: 'button', 'aria-pressed': String(st.stu === v), onclick: () => { st.stu = v; paintS(); paintSubmit(); } }, label);
+      const on = v => (v === 'G' ? st.stu === 'G' : st.ids.includes(v));
+      const tap = v => {
+        if (v === 'G') { st.stu = st.stu === 'G' ? undefined : 'G'; st.ids = []; } // Cả tổ is exclusive
+        else { st.stu = undefined; st.ids = ed ? [v] : on(v) ? st.ids.filter(x => x !== v) : [...st.ids, v]; }
+        paintS(); paintSubmit();
+      };
+      const pick = (v, label) => h('button', { class: 'fchip pressable', type: 'button', 'aria-pressed': String(on(v)), onclick: () => tap(v) }, label);
+      const n = st.ids.length;
+      sCount.textContent = n ? `Đã chọn ${n}` : ''; sClear.hidden = !!ed || (!n && st.stu !== 'G');
       put(sChips, ...(r?.scope === 'student' ? [] : [pick('G', 'Cả tổ')]), ...ss.map(s => pick(s.id, s.name)));
     }
     function paintR() {
@@ -103,54 +114,36 @@ export default function add() {
     function paintQ() { qSec.hidden = !st.rule?.perUnit; qOut.textContent = st.qty; }
     function paintSubmit() {
       const r = st.rule, gid = eg(), grp = D.groups.find(g => g.id === gid);
-      const stuOk = r && (r.scope === 'group' || (r.scope === 'student' ? st.stu && st.stu !== 'G' : st.stu !== undefined));
+      const n = st.ids.length, stuOk = r && (r.scope === 'group' || n > 0 || (r.scope !== 'student' && st.stu === 'G'));
       let text = '', ok = false;
       if (!r) text = 'Chọn nội dung';
       else if (!grp) text = 'Chọn tổ';
       else if (!can('record', { groupId: gid })) text = 'Bạn không được ghi cho tổ này';
       else if (!stuOk) text = r.scope === 'student' ? 'Chọn học sinh' : 'Chọn học sinh hoặc Cả tổ';
-      else { ok = true; const n = fmtNum(Math.abs(r.points * st.qty)); text = r.points < 0 ? `Trừ ${n} điểm của ${grp.name}` : `Cộng ${n} điểm cho ${grp.name}`; }
+      else { ok = true; text = many() ? `Ghi cho ${n} bạn` : r.points < 0 ? `Trừ ${fmtNum(Math.abs(r.points * st.qty))} điểm của ${grp.name}` : `Cộng ${fmtNum(Math.abs(r.points * st.qty))} điểm cho ${grp.name}`; }
       if (ok && dUi && !dUi.valid()) { ok = false; text = 'Chọn ngày hợp lệ'; }
       if (ok && ed) text = 'Lưu bản sửa';
       submit.textContent = text; submit.disabled = !ok; submit.className = 'btn' + (ok && r.points < 0 ? ' neg' : '');
-      const wait = ok && rec && r.points > 0;
-      subHint.hidden = !wait; subHint.textContent = wait ? 'Điểm cộng sẽ chờ giáo viên xác nhận.' : '';
+      const wait = ok && rec && r.points > 0, per = ok && many() ? `${fmtPts(r.points * st.qty)} điểm mỗi bạn, ${grp.name}.` : '';
+      subHint.hidden = !wait && !per; subHint.textContent = [per, wait ? 'Điểm cộng sẽ chờ giáo viên xác nhận.' : ''].filter(Boolean).join(' ');
     }
+    const many = () => !ed && st.rule?.scope !== 'group' && st.stu !== 'G' && st.ids.length > 1;
     const paintAll = () => { paintG(); paintS(); paintR(); paintQ(); paintSubmit(); };
 
     submit.onclick = () => {
-      const r = st.rule, gid = eg(), studentId = r.scope === 'group' || st.stu === 'G' ? null : st.stu;
-      const dt = dUi ? dUi.at(!!ed) : null, p = { id: (attempt ||= store.newEntryId()), groupId: gid, studentId, ruleId: r.id, qty: st.qty, note: note.value, at: dt };
+      const r = st.rule, gid = eg(), sids = r.scope === 'group' || st.stu === 'G' ? [null] : ed ? st.ids.slice(0, 1) : st.ids;
+      const dt = dUi ? dUi.at(!!ed) : null;
+      const ps = sids.map((studentId, i) => ({ id: (attempt[i] ||= store.newEntryId()), groupId: gid, studentId, ruleId: r.id, qty: st.qty, note: note.value, at: dt }));
       const save = async () => {
         if (busy) return; busy = true;
-        try { success(ed ? await store.editEntry(ed.id, p) : await store.addEntry(p)); } finally { busy = false; }
+        try { success(ed ? [await store.editEntry(ed.id, ps[0])] : await store.addEntries(ps)); } finally { busy = false; }
       };
       if (dt != null && weekStart(dt) !== weekStart(Date.now())) confirmSheet({ title: 'Ghi vào tuần đã tổng kết?', danger: false, label: ed ? 'Lưu bản sửa' : 'Ghi điểm',
         text: `Điểm sẽ được tính vào tuần ${wkLabel(weekStart(dt))}. Bảng tổng kết của tuần đó sẽ thay đổi.`, onConfirm: save });
       else act(save, { btn: submit });
     };
-    function success(e) {
-      const grp = D.groups.find(g => g.id === e.groupId), stu = D.students.find(s => s.id === e.studentId);
-      const base = e.status === 'pending' ? 'Đã gửi, chờ xác nhận' : ed ? 'Đã lưu bản sửa' : 'Đã ghi điểm';
-      const title = h('h2', null, base), stat = h('div', { class: 'sync-st', role: 'status' });
-      const again = h('button', { class: 'btn', type: 'button', hidden: true, onclick: () => store.retryEntry(e.id) }, 'Gửi lại');
-      const paintStat = () => {
-        const s = store.entryState(e.id) || 'ok';
-        stat.className = 'sync-st ' + (s === 'error' ? 'err' : s === 'ok' ? 'ok' : '');
-        stat.textContent = s === 'sending' ? 'Đang gửi lên máy chủ…' : s === 'queued' ? 'Đã lưu trên máy, đang chờ mạng để gửi lên máy chủ' : s === 'error' ? `Chưa gửi được: ${errMsg(store.entryError(e.id))}` : 'Đã lưu trên máy chủ ✓';
-        if (title.isConnected && !title.dataset.undone) title.textContent = s === 'error' ? 'Chưa ghi được điểm' : base;
-        again.hidden = s !== 'error';
-      };
-      const offOut = store.onOutbox(() => { if (stat.isConnected) paintStat(); else offOut(); });
-      paintStat();
-      put(cont, h('div', { class: 'success' }, h('div', { class: 'success-ico' }, icon('check', 40, 'check-draw')), title,
-        h('p', { class: 'muted' }, `${fmtPts(e.points)} điểm cho ${grp?.name || ''}${stu ? `, ${stu.name}` : ''}`), stat,
-        h('div', { class: 'row-btns', style: { width: '100%', marginTop: '8px' } }, again,
-          h('button', { class: 'btn btn-ghost', type: 'button', onclick: () => sh.close() }, 'Xong'),
-          h('button', { class: 'btn', type: 'button', onclick: () => { ed = null; attempt = null; dUi?.reset(); st = fresh(st.g); sIn.value = rIn.value = note.value = ''; put(cont, form); paintAll(); } }, 'Ghi tiếp'))));
-      if (!ed && e._out !== 'error') toast(saved(`${fmtPts(e.points)} cho ${grp?.name || ''}`), { duration: 8000, action: { label: 'Hoàn tác', onClick: () =>
-        act(async () => { await store.voidEntry(e.id, 'hoàn tác'); title.dataset.undone = '1'; title.textContent = 'Đã hoàn tác'; }, { ok: 'Đã hoàn tác' }) } });
-    }
+    const success = es => put(cont, doneView(es, { D, edit: !!ed, onDone: () => sh.close(),
+      onAgain: () => { ed = null; attempt = []; dUi?.reset(); st = fresh(st.g); sIn.value = rIn.value = note.value = ''; put(cont, form); paintAll(); } }));
     sh = openSheet({ title: ed ? 'Sửa điểm' : 'Ghi điểm', content: cont, onClose: () => { sh = null; if (!closing) navigate('/'); } });
     paintAll(); ready = true;
   }

@@ -4,6 +4,7 @@
  *  on(col, cb, opts)              -> unsubscribe. cols: config (object), groups, students, rules, cycles (dormant),
  *                                    members, invites (arrays of {id,...}). NOT entries (see week API below).
  *  addEntry({groupId,studentId,ruleId,qty,note}) -> entry   (snapshots rule, sets status per role)
+ *  addEntries([...]) -> entries   (multi-student Ghi điểm, one batch)
  *  voidEntry(id, reason)          approveEntry(id)
  *  saveDoc(col, id|null, data)    -> id (merge)        deleteDoc(col, id)
  *  onWeek(cb)                     -> unsubscribe. realtime CURRENT week, auto rollover. cb({entries, weekStart})
@@ -122,6 +123,14 @@ export async function addEntry(e) {
   const entry = { id, ...doc }, it = await track(entry, [{ col: 'entries', id, data: doc, ...(at != null && { at }) }]);
   if (at != null) inv(at);
   return { ...entry, _out: it.state };
+}
+// Several students, same rule/qty/note/date: ONE batch (one outbox item), each entry built + validated like addEntry.
+export async function addEntries(list) {
+  if (list.length < 2) return [await addEntry(list[0])];
+  const bs = await Promise.all(list.map(build)), es = bs.map(({ id, doc }) => ({ id, ...doc }));
+  const it = await track(es, bs.map(({ id, doc, at }) => ({ col: 'entries', id, data: doc, ...(at != null && { at }) })));
+  if (bs[0].at != null) inv(bs[0].at);
+  return es.map(e => ({ ...e, _out: it.state }));
 }
 // Sửa = ONE batch: new entry (replaces: oldId) + void the old one. Never mutates entry fields in place.
 export async function editEntry(oldId, e) {
